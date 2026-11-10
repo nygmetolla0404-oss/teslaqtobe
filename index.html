@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TESLAQTOBE AI GEO-ROUTE</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Unbounded:wght@600;800&display=swap">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div id="app">
+  <canvas id="gl" aria-label="Ақтөбе облысының үш өлшемді картасы"></canvas>
+  <div id="labels"></div>
+
+  <header id="top" hidden>
+    <div class="brand"><b>TESLAQTOBE AI GEO-ROUTE</b><span>Ақтөбе облысының ақылды туристік картасы</span></div>
+    <div class="chips" id="chips" role="group" aria-label="Маршрутты таңдау">
+      <button class="chip" data-r="short" style="--c:var(--blue)" aria-pressed="true">Ең қысқа</button>
+      <button class="chip" data-r="safe" style="--c:var(--orange)" aria-pressed="false">Ең қауіпсіз</button>
+      <button class="chip" data-r="eco" style="--c:var(--green)" aria-pressed="false">Экологиялық</button>
+    </div>
+    <div class="tools">
+      <button class="tool" id="tVoice" aria-pressed="true">Дауыс</button>
+      <button class="tool" id="tMusic" aria-pressed="true">Әуен</button>
+      <button class="tool" id="tFull">Толық экран</button>
+    </div>
+  </header>
+
+  <nav id="dock" hidden aria-label="Бөлімдер">
+    <button data-m="map"><svg viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>Карта</button>
+    <button data-m="slides"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Жоба</button>
+    <button data-m="routes"><svg viewBox="0 0 24 24"><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H14a3 3 0 000-6h-4a3 3 0 010-6h5.5"/></svg>Маршруттар</button>
+    <button data-m="tour"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z"/></svg>Экскурсия</button>
+    <button data-m="drive"><svg viewBox="0 0 24 24"><path d="M4 15l1.5-5a2 2 0 012-1.5h9a2 2 0 012 1.5L20 15v3H4z"/><circle cx="8" cy="18" r="1.6"/><circle cx="16" cy="18" r="1.6"/></svg>Жүргізу</button>
+    <button data-m="lab"><svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="7" r="2"/><circle cx="12" cy="18" r="2"/><path d="M7 6.3l10 .5M6 7.8l5 8.4M18 8.8l-5 7.5"/></svg>AI зертхана</button>
+    <button data-m="sim"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>Симулятор</button>
+    <button data-m="authors"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 5.2a3.2 3.2 0 010 5.6M17.5 14.3c2 .8 3.5 3 3.5 5.7"/></svg>Авторлар</button>
+  </nav>
+
+  <aside id="panel" hidden>
+    <div id="panelHead"><h2 id="panelTitle"></h2><button class="hb" id="panelFold">Жию</button><button class="hb" id="panelClose" aria-label="Жабу">✕</button></div>
+    <div id="panelBody"></div>
+  </aside>
+
+  <div id="hud" hidden>
+    <div class="stat"><small>Жылдамдық</small><b id="hSpeed">0 км/сағ</b></div>
+    <div class="stat"><small>Жүрілген жол</small><b id="hKm">0 км</b></div>
+    <div class="stat"><small>Батарея</small><b id="hBat">100%</b></div>
+    <div class="stat"><small>Энергия</small><b id="hE">0 кВт·сағ</b></div>
+    <div class="stat"><small>CO₂ үнемі</small><b id="hCo">0 кг</b></div>
+    <button class="btn" id="hAct" hidden></button>
+    <button class="btn s" id="hExit">Картаға оралу</button>
+  </div>
+  <div id="pad" hidden aria-label="Басқару">
+    <button class="u" data-k="up" aria-label="Алға">▲</button><button class="l" data-k="left" aria-label="Солға">◀</button>
+    <button class="d" data-k="down" aria-label="Артқа">▼</button><button class="rr" data-k="right" aria-label="Оңға">▶</button>
+  </div>
+  <div id="toast" hidden role="status"></div>
+  <div id="hint" hidden>Сүйреу — айналдыру · дөңгелек немесе екі саусақ — масштаб · нысанды басу — ашу</div>
+
+  <section id="intro">
+    <div class="icard">
+      <div class="eyebrow">ҒЫЛЫМИ ЖОБА · 2026</div>
+      <h1>TESLAQTOBE <em>AI GEO-ROUTE</em></h1>
+      <p class="topic">Никола Тесланың жаңартылатын энергия идеялары мен жасанды интеллект негізінде Ақтөбе облысының ақылды туристік маршрутын әзірлеу</p>
+      <div class="meta">
+        <div class="person"><small>Орындаған · 10-сынып</small><b>Тұрғанбаева Айсана Саматқызы</b></div>
+        <div class="person"><small>Орындаған · 10-сынып</small><b>Қуандық Нұрислам Сәкенұлы</b></div>
+        <div class="person"><small>Ғылыми жетекші</small><b>Жұбаналина Нұрия Шоқанқызы</b></div>
+        <div class="person"><small>Мектебі</small><b>«Қаражар орта мектебі» КММ</b></div>
+      </div>
+      <button class="start" id="start" disabled>Жүктелуде…</button>
+      <p class="note">Үш өлшемді тірі карта: нысандарды ашыңыз, Smart Station ішіне кіріңіз, электромобильмен жүріңіз, маршруттарды салыстырыңыз. Қазақша дауыстық сүйемелдеу мен әуен «Бастау» батырмасынан кейін қосылады.</p>
+    </div>
+  </section>
+</div>
+<script src="lib/three.min.js"></script>
+<script src="lib/OrbitControls.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
